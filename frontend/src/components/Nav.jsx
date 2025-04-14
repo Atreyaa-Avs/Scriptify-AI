@@ -1,4 +1,4 @@
-import { ChevronRight } from "lucide-react";
+import { ChevronRight, MoveRight } from "lucide-react";
 import React from "react";
 import { Link } from "react-router-dom";
 
@@ -22,16 +22,9 @@ const Nav = () => {
         <div className="flex gap-6 font-semibold text-base">
           <Link
             to="/handwritingtotext"
-            className="relative inline-block after:content-[''] after:absolute after:left-0 after:bottom-0 after:h-[2px] after:w-0 after:bg-white after:transition-all after:duration-300 hover:after:w-full bg-black py-2 px-4 text-white rounded-md hover:bg-neutral-800"
+            className="relative flex after:content-[''] after:absolute after:left-0 after:bottom-0 after:h-[2px] after:w-0 after:bg-white after:transition-all after:duration-300 hover:after:w-full bg-black py-2 px-4 text-white rounded-md hover:bg-neutral-800"
           >
-            Handwriting to Text
-          </Link>
-
-          <Link
-            to="/texttohandwriting"
-            className="relative inline-block after:content-[''] after:absolute after:left-0 after:bottom-0 after:h-[2px] after:w-0 after:bg-black after:transition-all after:duration-300 hover:after:w-full bg-white py-2 px-4 text-black rounded-md hover:bg-neutral-100"
-          >
-            Text to Handwriting
+            Go to Editor<MoveRight className="scale-75 mt-[2px] ml-1"/>
           </Link>
         </div>
       </div>

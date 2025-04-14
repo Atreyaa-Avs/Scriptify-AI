@@ -8,7 +8,7 @@ import MenuBar from "./MenuBar";
 import Highlight from "@tiptap/extension-highlight";
 import { useDropzone } from "react-dropzone";
 import { Button } from "./ui/button";
-import { X } from "lucide-react";
+import { TextSelect, X } from "lucide-react";
 import UploadPng from "/upload.png";
 import axios from "axios";
 import { Toaster, toast } from "react-hot-toast";
@@ -24,6 +24,7 @@ import {
 
 import TextStyle from "@tiptap/extension-text-style";
 import Color from "@tiptap/extension-color";
+import { saveAs } from "file-saver";
 
 const TiptapEditorForHandwritingtoText = () => {
   const [uploadedFile, setUploadedFile] = useState(null);
@@ -79,11 +80,9 @@ const TiptapEditorForHandwritingtoText = () => {
     noKeyboard: true,
     multiple: false,
     accept: {
-      "application/pdf": [".pdf"],
       "image/jpeg": [".jpeg", ".jpg"],
       "image/png": [".png"],
-      "image/webp": [".webp"],
-    }    
+    },
   });
 
   const editor = useEditor({
@@ -123,17 +122,29 @@ const TiptapEditorForHandwritingtoText = () => {
     const formData = new FormData();
     formData.append("file", uploadFiletoBackend);
 
-    const loadingToast = toast.loading("Uploading file...");
+    const loadingToast = toast.loading("Processing...");
 
     try {
-      await axios.post("http://localhost:3000/api/upload/", formData, {
-        headers: { "Content-Type": "multipart/form-data" },
-      });
+      const response = await axios.post(
+        "http://localhost:3000/api/upload",
+        formData,
+        {
+          headers: { "Content-Type": "multipart/form-data" },
+        }
+      );
 
-      toast.success("File uploaded successfully!");
+      const extractedText = response.data.extracted_text;
+      console.log("Extracted Text:", extractedText);
+
+      if (editor && extractedText) {
+        editor.chain().focus().insertContent(`\n\n${extractedText}\n`).run();
+      } else {
+        console.warn("Editor not available or text missing");
+      }
+      toast.success("Success...!!");
       toast.dismiss(loadingToast);
     } catch (error) {
-      toast.error("Failed to upload file");
+      toast.error("Failed to get Response.");
       toast.dismiss(loadingToast);
     }
   };
@@ -141,6 +152,30 @@ const TiptapEditorForHandwritingtoText = () => {
   const clearFile = () => {
     setUploadedFile(null);
     setUploadFiletoBackend(null);
+  };
+
+  const handleExportToWord = () => {
+    if (!editor) return;
+
+    const htmlContent = editor.getHTML();
+
+    const wordHtml = `
+      <html xmlns:o='urn:schemas-microsoft-com:office:office' 
+            xmlns:w='urn:schemas-microsoft-com:office:word' 
+            xmlns='http://www.w3.org/TR/REC-html40'>
+        <head>
+          <meta charset='utf-8'>
+          <title>Export</title>
+        </head>
+        <body>${htmlContent}</body>
+      </html>
+    `;
+
+    const blob = new Blob(["\ufeff", wordHtml], {
+      type: "application/msword;charset=utf-8",
+    });
+
+    saveAs(blob, "editor-content.doc");
   };
 
   return (
@@ -164,15 +199,15 @@ const TiptapEditorForHandwritingtoText = () => {
           <div className="h-fit flex flex-col gap-4 bg-neutral-400 p-4 rounded-md mt-4 items-center justify-center w-full sticky top-5">
             <input {...getInputProps()} hidden />
 
-            <p className="text-sm text-center">
+            <p className="text-md text-center">
               {isDragActive ? (
                 "Drop the file here..."
               ) : (
                 <>
                   Drag or upload a file here
                   <br />
-                  <span className="text-red-700">
-                    (only .pdf, .jpeg, .jpg, .png, .webp files)
+                  <span className="text-red-500 text-sm">
+                    (only .jpeg, .jpg, .png files)
                   </span>
                 </>
               )}
@@ -209,6 +244,9 @@ const TiptapEditorForHandwritingtoText = () => {
                 </p>
               </div>
             )}
+            <Button onClick={handleExportToWord}>
+              <ArrowUpFromLine /> Export to Word (.doc)
+            </Button>
           </div>
         </div>
 
@@ -237,12 +275,13 @@ const CustomBubbleMenu = ({ editor, selectedText }) => {
 
   const [input, setInput] = useState("");
 
-  const handleChange = (e) => {
-    setInput(e.target.value);
+  const handleTranslation = ({ language }) => {
+    const task = `Translation ${language}`;
+    handleSubmit(task);
+    setInput("");
   };
 
-  const handleSubmit = async () => {
-    const task = input.trim();
+  const handleSubmit = async (task) => {
     if (!task) return;
 
     const postData = axios.post("http://localhost:3000/api/AI", {
@@ -251,9 +290,9 @@ const CustomBubbleMenu = ({ editor, selectedText }) => {
     });
 
     toast.promise(postData, {
-      loading: "Sending to AI...",
+      loading: "Processing...",
       success: (res) => {
-        console.log("Response from Gemini: ", res.data.response);
+        console.log("Response ", res.data.response);
         if (editor) {
           editor.commands.insertContent(res.data.response); // Insert the AI response into the editor
         }
@@ -261,9 +300,6 @@ const CustomBubbleMenu = ({ editor, selectedText }) => {
       },
       error: "Failed to get response from AI.",
     });
-
-    // No need to await here as toast handles promise lifecycle
-    setInput(""); // Clear input after submitting
   };
 
   const Options = [
@@ -323,22 +359,28 @@ const CustomBubbleMenu = ({ editor, selectedText }) => {
           </p>
         </div>
       </div>
-      <p>Ask AI:</p>
-      <div className="flex items-center gap-2">
-        <input
-          type="text"
-          placeholder="Prompt here..."
-          onChange={handleChange}
-          value={input}
-          className="px-3 py-1.5 text-sm rounded-md border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 shadow-sm"
-        />
-        <Button
-          className="scale-90 w-10"
-          onClick={handleSubmit}
-          disabled={!input.trim()}
-        >
-          <SendHorizonal />
-        </Button>
+      <div>
+        <div className="flex flex-col justify-center items-center gap-3">
+          <div className="flex gap-2">
+            <Button onClick={() => handleSubmit("Summarization")}>
+              <TextSelect /> Summarize
+            </Button>
+            <div className="">
+              <input
+                type="text"
+                value={input}
+                className="bg-black text-white focus:outline-none p-2 rounded-md text-sm"
+                placeholder="Translate to.."
+                onChange={(e) => setInput(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter") {
+                    handleTranslation({ language: input });
+                  }
+                }}
+              />
+            </div>
+          </div>
+        </div>
       </div>
     </BubbleMenu>
   );
