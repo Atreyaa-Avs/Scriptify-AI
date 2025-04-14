@@ -1,5 +1,7 @@
 import { Link } from "react-router-dom";
 import { Button } from "./ui/button";
+import Pic from "/ButtonPic.png";
+import { CornerDownRight, CornerUpRight, MoveRight } from "lucide-react";
 
 const Landing = () => {
   return (
@@ -11,18 +13,23 @@ const Landing = () => {
         </h1>
         <div className=" text-black pointer-events-none text-md max-w-screen-lg mx-auto font-medium">
           <p>
-            Transform your words into elegant handwriting and handwritten notes
-            into editable, searchable text — all in one powerful platform.
-            Scriptify AI blends the art of penmanship with the precision of AI,
-            featuring a rich, intuitive text editor that lets you write,
-            convert, and customize effortlessly. Whether you're digitizing notes
-            or adding a personal touch to your messages, Scriptify AI makes your
-            script smart.
+            Scriptify AI is a powerful platform that transforms handwritten
+            images into clean, editable, and searchable text with exceptional
+            accuracy. Beyond digitization, it features an intelligent text
+            editor equipped with built-in tools for summarization and
+            translation, allowing users to refine, condense, and convert content
+            into multiple languages effortlessly.
           </p>
         </div>
-        <div className="flex gap-5 items-center justify-center">
-          <Link to="handwritingtotext"><Button>Handwriting to Text</Button></Link>
-          <Link to="texttohandwriting"><Button>Text to Handwriting</Button></Link>
+        <div className="flex flex-col gap-5 items-center justify-center">
+          <img src={Pic} alt="" className="w-56 h-36" />
+          <Link to="handwritingtotext">
+            <Button>
+              Go to Editor
+              <MoveRight className="mt-[2px] scale-110" />
+            </Button>
+          </Link>
+          {/* <Link to="texttohandwriting"><Button>Text to Handwriting</Button></Link> */}
         </div>
       </div>
     </div>
