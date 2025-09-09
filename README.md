@@ -2,7 +2,7 @@
 
 _A smart rich text editor with handwriting recognition, summarization, translation, and export features._
 
-## Overview
+## Overview 
 
 **Scriptify-AI** is an intelligent text editor that transforms handwritten content into editable digital text, enhances it with AI-powered summarization and translation, and allows you to export the final result as a Word document. 
 
