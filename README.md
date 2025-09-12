@@ -13,7 +13,7 @@ It is designed for students, researchers, and professionals who want a seamless 
 ## Features
 
 - **_ Handwriting-to-Text OCR _**  
-  Converts handwritten notes into editable text using the [`stepfun-ai/GOT-OCR-2.0-hf`](https://huggingface.co/stepfun-ai/GOT-OCR-2.0-hf) model.
+  Converts handwritten notes into editable text using the [`stepfun-ai/GOT-OCR-2.0-hf`](https://huggingface.co/stepfun-ai/GOT-OCR-2.0-hf) model.  
 
 - **_ Rich Text Editing _**  
   Supports text formatting (bold, italic, underline, headings, lists, etc.).
