@@ -1,6 +1,6 @@
 # Scriptify-AI
 
-_A smart rich text editor with handwriting recognition, summarization, translation, and export features._
+_A smart rich text editor with handwriting recognition, summarization, translation, and export features.
 
 ## Overview
 
